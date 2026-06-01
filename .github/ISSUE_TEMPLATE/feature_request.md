@@ -3,13 +3,13 @@ name: Feature request
 about: Suggest an idea for this project
 title: ''
 labels: enhancement
-assignees: FrancoisChaumont
+assignees: fch4um0n7
 
 ---
 
 `Just replace the text in italic below with the related details or write N/A`
 
-**Tool(s) concerned**      
+**Tool(s) concerned**
 - [ ] database
 - [ ] query
 - [ ] query-daily
@@ -26,17 +26,17 @@ assignees: FrancoisChaumont
 - [ ] all
 - [ ] new
 
-**Feature concerned**       
+**Feature concerned**
 *Would this new feature be part of an existing feature?*
 
-**Describe the new feature**        
+**Describe the new feature**
 *A clear and concise description of what the feature is.*
 
-**Expected behavior**       
+**Expected behavior**
 *A clear and concise description of what you expect to happen.*
 
-**Screenshots**     
+**Screenshots**
 *If applicable, add screenshots to help visualize the feature.*
 
-**Additional information**      
+**Additional information**
 *Add any other information about the problem here.*

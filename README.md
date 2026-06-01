@@ -1,16 +1,16 @@
 # Toolkit for AWS Athena API
 
-![GitHub](https://img.shields.io/github/license/FrancoisChaumont/aws-athena-api-tools)
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?style=flat)](https://github.com/FrancoisChaumont/aws-athena-api-tools/issues)
-![GitHub release](https://img.shields.io/github/release/FrancoisChaumont/aws-athena-api-tools)
-[![GitHub issues](https://img.shields.io/github/issues/FrancoisChaumont/aws-athena-api-tools)](https://github.com/FrancoisChaumont/aws-athena-api-tools/issues)
-[![GitHub issues](https://img.shields.io/github/issues-closed/FrancoisChaumont/aws-athena-api-tools)](https://github.com/FrancoisChaumont/aws-athena-api-tools/issues)
+![GitHub](https://img.shields.io/github/license/fch4um0n7/aws-athena-api-tools_php)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?style=flat)](https://github.com/fch4um0n7/aws-athena-api-tools_php/issues)
+![GitHub release](https://img.shields.io/github/release/fch4um0n7/aws-athena-api-tools_php)
+[![GitHub issues](https://img.shields.io/github/issues/fch4um0n7/aws-athena-api-tools_php)](https://github.com/fch4um0n7/aws-athena-api-tools_php/issues)
+[![GitHub issues](https://img.shields.io/github/issues-closed/fch4um0n7/aws-athena-api-tools_php)](https://github.com/fch4um0n7/aws-athena-api-tools_php/issues)
 
-![GitHub watchers](https://img.shields.io/github/watchers/FrancoisChaumont/aws-athena-api-tools?style=social)
-[![GitHub stars](https://img.shields.io/github/stars/FrancoisChaumont/aws-athena-api-tools)](https://github.com/FrancoisChaumont/aws-athena-api-tools/stargazers)
-![GitHub forks](https://img.shields.io/github/forks/FrancoisChaumont/aws-athena-api-tools?style=social)
-![GitHub contributors](https://img.shields.io/github/contributors/FrancoisChaumont/aws-athena-api-tools)
-![Github All Releases](https://img.shields.io/github/downloads/FrancoisChaumont/aws-athena-api-tools/total)
+![GitHub watchers](https://img.shields.io/github/watchers/fch4um0n7/aws-athena-api-tools_php?style=social)
+[![GitHub stars](https://img.shields.io/github/stars/fch4um0n7/aws-athena-api-tools_php)](https://github.com/fch4um0n7/aws-athena-api-tools_php/stargazers)
+![GitHub forks](https://img.shields.io/github/forks/fch4um0n7/aws-athena-api-tools_php?style=social)
+![GitHub contributors](https://img.shields.io/github/contributors/fch4um0n7/aws-athena-api-tools_php)
+![Github All Releases](https://img.shields.io/github/downloads/fch4um0n7/aws-athena-api-tools_php/total)
 
 ## Introduction
 **What it does?** It allows you to do the following from the command line:
