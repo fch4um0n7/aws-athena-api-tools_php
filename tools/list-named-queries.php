@@ -9,7 +9,7 @@ namespace FC\AWS;
 require __DIR__ . "/imports/common.php";
 require __DIR__ . "/usage/list-named-queries.usage.php";
 
-// type of query/ies executed 
+// type of query/ies executed
 const QUERY_TYPE = \FC\AWS\Athena::QUERY_TYPE_DML;
 
 try {
@@ -28,7 +28,7 @@ try {
             foreach($athena->listNamedQueries($nextPaginationToken) as $namedQueryId) {
                 echo json_encode($athena->getNamedQueryDetails($namedQueryId), JSON_PRETTY_PRINT) . PHP_EOL;
             }
-        } while ($nextPaginationToken != '');
+        } while ($nextPaginationToken !== '');
     }
 
     exit(0);

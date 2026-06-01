@@ -9,15 +9,14 @@ namespace FC\AWS;
 require __DIR__ . "/imports/common.php";
 require __DIR__ . "/usage/list-databases.usage.php";
 
-// type of query/ies executed 
+// type of query/ies executed
 const QUERY_TYPE = \FC\AWS\Athena::QUERY_TYPE_DML;
 
 try {
     // init configuration parameters
-    $detailed = isset($options[OPTION_DETAILED]) ? true : false;
+    $detailed = isset($options[OPTION_DETAILED]);
 
-    if (!isset($options[OPTION_CATALOG])) { $catalog = DEFAULT_CATALOG; }
-    else { $catalog = $options[OPTION_CATALOG]; }
+    $catalog = $options[OPTION_CATALOG] ?? DEFAULT_CATALOG;
 
     // AWS Athena client configuration
     $awsConfig = getAwsConfig($options);
@@ -33,7 +32,7 @@ try {
             echo $athena->getDatabaseDetails($options[OPTION_DATABASE], $catalog)['Name'] . PHP_EOL;
         }
     } else {
-        foreach($athena->listAllDatabases($catalog) as $databaseName) {
+        foreach ($athena->listAllDatabases($catalog) as $databaseName) {
             if ($detailed) {
                 echo json_encode($athena->getDatabaseDetails($databaseName, $catalog)) . PHP_EOL;
             } else {

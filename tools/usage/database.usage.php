@@ -65,7 +65,7 @@ Example:
         -r us-east-1
 EOS, INCLUDED_FILE)));
 
-$shortOpts = 'cdtn:o:g:k:p:v:r:h';
+$shortOpts = 'cdtn:o:g:k:p:v:r:f:h';
 $longOpts = [
     'create',
     'drop',
@@ -77,19 +77,20 @@ $longOpts = [
     'profile:',
     'version:',
     'region:',
+    'env-file:',
     'help'
 ];
 
 // set options
 $options = setOptions($shortOpts, $longOpts, USAGE);
 
-define('OPTION_CREATE', isset($options['c']) ? 'c' : 'create');
-define('OPTION_DROP', isset($options['d']) ? 'd' : 'drop');
-define('OPTION_CASCADE', isset($options['t']) ? 't' : 'cascade');
-define('OPTION_DATABASE', isset($options['n']) ? 'n' : 'database');
-define('OPTION_OUTPUT', isset($options['o']) ? 'o' : 'output');
-define('OPTION_WORKGROUP', isset($options['g']) ? 'g' : 'workgroup');
-define('OPTION_CATALOG', isset($options['k']) ? 'k' : 'catalog');
+define('OPTION_CREATE', array_key_exists('c', $options) ? 'c' : 'create');
+define('OPTION_DROP', array_key_exists('d', $options) ? 'd' : 'drop');
+define('OPTION_CASCADE', array_key_exists('t', $options) ? 't' : 'cascade');
+define('OPTION_DATABASE', array_key_exists('n', $options) ? 'n' : 'database');
+define('OPTION_OUTPUT', array_key_exists('o', $options) ? 'o' : 'output');
+define('OPTION_WORKGROUP', array_key_exists('g', $options) ? 'g' : 'workgroup');
+define('OPTION_CATALOG', array_key_exists('k', $options) ? 'k' : 'catalog');
 
 // Initialize AWS configuration options
 initAwsConfigOptions($options);

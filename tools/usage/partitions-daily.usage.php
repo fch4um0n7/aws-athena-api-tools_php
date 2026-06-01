@@ -78,7 +78,7 @@ Example:
         -r us-east-1
 EOS, INCLUDED_FILE)));
 
-$shortOpts = 't:d:y:m:b:e:c:o:g:k:p:v:r:h';
+$shortOpts = 't:d:y:m:b:e:c:o:g:k:p:v:r:f:h';
 $longOpts = [
     'table:',
     'data:',
@@ -93,22 +93,23 @@ $longOpts = [
     'profile:',
     'version:',
     'region:',
+    'env-file:',
     'help'
 ];
 
 // set options
 $options = setOptions($shortOpts, $longOpts, USAGE);
 
-define('OPTION_TABLE', isset($options['t']) ? 't' : 'table');
-define('OPTION_DATA', isset($options['d']) ? 'd' : 'data');
-define('OPTION_YEAR', isset($options['y']) ? 'y' : 'year');
-define('OPTION_MONTH', isset($options['m']) ? 'm' : 'month');
-define('OPTION_BEGIN', isset($options['b']) ? 'b' : 'begin');
-define('OPTION_END', isset($options['e']) ? 'e' : 'end');
-define('OPTION_COLUMN', isset($options['c']) ? 'c' : 'column');
-define('OPTION_OUTPUT', isset($options['o']) ? 'o' : 'output');
-define('OPTION_WORKGROUP', isset($options['g']) ? 'g' : 'workgroup');
-define('OPTION_CATALOG', isset($options['k']) ? 'k' : 'catalog');
+define('OPTION_TABLE', array_key_exists('t', $options) ? 't' : 'table');
+define('OPTION_DATA', array_key_exists('d', $options) ? 'd' : 'data');
+define('OPTION_YEAR', array_key_exists('y', $options) ? 'y' : 'year');
+define('OPTION_MONTH', array_key_exists('m', $options) ? 'm' : 'month');
+define('OPTION_BEGIN', array_key_exists('b', $options) ? 'b' : 'begin');
+define('OPTION_END', array_key_exists('e', $options) ? 'e' : 'end');
+define('OPTION_COLUMN', array_key_exists('c', $options) ? 'c' : 'column');
+define('OPTION_OUTPUT', array_key_exists('o', $options) ? 'o' : 'output');
+define('OPTION_WORKGROUP', array_key_exists('g', $options) ? 'g' : 'workgroup');
+define('OPTION_CATALOG', array_key_exists('k', $options) ? 'k' : 'catalog');
 
 // Initialize AWS configuration options
 initAwsConfigOptions($options);

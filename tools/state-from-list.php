@@ -19,26 +19,28 @@ try {
     // init Athena object
     $athena = instantiateAthena(new \Aws\Athena\AthenaClient($awsConfig));
 
-    $file = fopen($list,"r");
+    $file = fopen($list, 'r');
+    if ($file === false) {
+        throw new \Exception("Unable to open <path_to_list>!");
+    }
 
-    while(!feof($file)) {
-        $line = trim(fgets($file));
-        if ($line !== false) {
-            $matches = [];
+    while (($rawLine = fgets($file)) !== false) {
+        $line = trim($rawLine);
+        $matches = [];
 
-            if (!preg_match(sprintf('/%s/', ID_FORMAT), $line, $matches)) {
-                print $line . PHP_EOL;
-            } else {
-                if (isset($matches[0]) && $matches[0] != '') {
-                    $queryID = $matches[0];
-                    $comments = trim(str_replace($queryID, '', $line));
-                    $executionTime = '';
-                    $failureReason = '';
-                    $state = $athena->getQueryCurrentState($queryID, $executionTime, $failureReason);
+        if (!preg_match(sprintf('/%s/', ID_FORMAT), $line, $matches)) {
+            print $line . PHP_EOL;
+            continue;
+        }
 
-                    print $queryID . "\t" . $state . ($executionTime != '' ? "\t" . $executionTime : '') . ($state == \FC\AWS\Athena::QUERY_STATE_FAILED ? "\t" . $failureReason : '') . "\t" . $comments . PHP_EOL;
-                }
-            }
+        if (isset($matches[0]) && $matches[0] !== '') {
+            $queryID = $matches[0];
+            $comments = trim(str_replace($queryID, '', $line));
+            $executionTime = '';
+            $failureReason = '';
+            $state = $athena->getQueryCurrentState($queryID, $executionTime, $failureReason);
+
+            print $queryID . "\t" . $state . ($executionTime !== '' ? "\t" . $executionTime : '') . ($state === \FC\AWS\Athena::QUERY_STATE_FAILED ? "\t" . $failureReason : '') . "\t" . $comments . PHP_EOL;
         }
     }
 
@@ -47,7 +49,9 @@ try {
 
 } catch (\Exception $e) {
     echo $e->getMessage() . "\n";
-    fclose($file);
+    if (isset($file) && is_resource($file)) {
+        fclose($file);
+    }
     exit(1);
 }
 

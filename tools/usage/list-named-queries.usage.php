@@ -42,19 +42,20 @@ Example:
         -r us-east-1
 EOS, INCLUDED_FILE)));
 
-$shortOpts = 'i:p:v:r:h';
+$shortOpts = 'i:p:v:r:f:h';
 $longOpts = [
     'id:',
     'profile:',
     'version:',
     'region:',
+    'env-file:',
     'help'
 ];
 
 // set options
 $options = setOptions($shortOpts, $longOpts, USAGE);
 
-define('OPTION_ID', isset($options['i']) ? 'i' : 'id');
+define('OPTION_ID', array_key_exists('i', $options) ? 'i' : 'id');
 
 // Initialize AWS configuration options
 initAwsConfigOptions($options);

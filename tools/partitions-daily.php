@@ -20,7 +20,7 @@ try {
     if (!isset($options[OPTION_DATA])) { throw new \Exception("Missing <path_to_data>!"); }
     $data = $options[OPTION_DATA];
 
-    if (!isset($options[OPTION_YEAR])) { throw new \Exception("Missing <year_of_data>!"); }  
+    if (!isset($options[OPTION_YEAR])) { throw new \Exception("Missing <year_of_data>!"); }
     $year = intval($options[OPTION_YEAR]);
 
     if (!isset($options[OPTION_MONTH])) { throw new \Exception("Missing <month_of_data>!"); }
@@ -31,27 +31,24 @@ try {
 
     if (!isset($options[OPTION_BEGIN])) { $startDate = '01'; }
     else { $startDate = $options[OPTION_BEGIN]; }
-    if (intval($startDate) == 0) { throw new \Exception("Invalid start date: $startDate"); }
-    
+    if (intval($startDate) === 0) { throw new \Exception("Invalid start date: $startDate"); }
+
     if (!isset($options[OPTION_END])) { $endDate = $maxDays; }
     else {
         $endDate = $options[OPTION_END];
-        if (intval($endDate) == 0) { throw new \Exception("Invalid end date: $endDate"); }
+        if (intval($endDate) === 0) { throw new \Exception("Invalid end date: $endDate"); }
     }
 
     if ($endDate < $startDate) { throw new \Exception("End date $endDate must be posterior to start date $startDate!"); }
 
-    if (!isset($options[OPTION_OUTPUT])) { $output = DEFAULT_QUERY_OUTPUT; }
-    else { $output = $options[OPTION_OUTPUT]; }
+    $output = $options[OPTION_OUTPUT] ?? DEFAULT_QUERY_OUTPUT;
 
-    $column = (isset($options[OPTION_COLUMN]) && $options[OPTION_COLUMN] != '' ? $options[OPTION_COLUMN] : DEFAULT_PARTITION_COLUMN);
+    $column = (isset($options[OPTION_COLUMN]) && $options[OPTION_COLUMN] !== '' ? $options[OPTION_COLUMN] : DEFAULT_PARTITION_COLUMN);
 
-    if (!isset($options[OPTION_CATALOG])) { $catalog = DEFAULT_CATALOG; }
-    else { $catalog = $options[OPTION_CATALOG]; }
+    $catalog = $options[OPTION_CATALOG] ?? DEFAULT_CATALOG;
 
-    if (!isset($options[OPTION_WORKGROUP])) { $workgroup = DEFAULT_WORKGROUP; }
-    else { $workgroup = $options[OPTION_WORKGROUP]; }
-    
+    $workgroup = $options[OPTION_WORKGROUP] ?? DEFAULT_WORKGROUP;
+
     // AWS Athena client configuration
     $awsConfig = getAwsConfig($options);
 
@@ -65,6 +62,7 @@ try {
 
     // execute all queries
     echo "Executing queries:\n";
+    $execDetails = [];
     for ($d = intval($startDate); $d <= intval($endDate); $d++) {
         // execute a query
         $day = substr('0'.$d, -2);
@@ -94,15 +92,15 @@ try {
             $queryId = $athena->getQueryStaleId($query);
 
             // get the current state of that query
-            $executionTime = ''; 
+            $executionTime = '';
             $failureReason = '';
             $state = $athena->getQueryCurrentState($queryId, $executionTime, $failureReason);
 
-            if (in_array($state, \FC\AWS\Athena::QUERY_STOP_STATES)) {
+            if (in_array($state, \FC\AWS\Athena::QUERY_STOP_STATES, true)) {
                 $loop = false;
-                print $queryId . "\t" . $execDetails[$queryId] . "\t" . $state . ($executionTime != '' ? "\t" . $executionTime : '') . ($state == \FC\AWS\Athena::QUERY_STATE_FAILED ? "\t" . $failureReason : '') . PHP_EOL;
+                print $queryId . "\t" . $execDetails[$queryId] . "\t" . $state . ($executionTime !== '' ? "\t" . $executionTime : '') . ($state === \FC\AWS\Athena::QUERY_STATE_FAILED ? "\t" . $failureReason : '') . PHP_EOL;
 
-                if ($state != \FC\AWS\Athena::QUERY_STATE_SUCCEEDED) {
+                if ($state !== \FC\AWS\Athena::QUERY_STATE_SUCCEEDED) {
                     $exit = 1;
                 }
             }

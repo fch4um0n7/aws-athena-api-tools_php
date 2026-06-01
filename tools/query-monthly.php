@@ -17,10 +17,10 @@ try {
     if (!isset($options[OPTION_SCRIPT])) {
         stream_set_blocking(STDIN, false);
         $query = stream_get_contents(STDIN);
-        if ($query == '') { throw new \Exception("No query found!"); }
+        if ($query === '') { throw new \Exception("No query found!"); }
     } else {
         $script = $options[OPTION_SCRIPT];
-        if (!is_readable($script)) { throw new \Exception(sprintf("Script file not found at %!", $script)); }
+        if (!is_readable($script)) { throw new \Exception(sprintf("Script file not found at %s!", $script)); }
         $query = file_get_contents($script);
     }
     define('QUERY', $query);
@@ -40,28 +40,25 @@ try {
         $endDate[YEAR_IDX] = intval($endDate[YEAR_IDX]);
         $endDate[MONTH_IDX] = intval($endDate[MONTH_IDX]);
 
-        if (($endDate[YEAR_IDX] == $startDate[YEAR_IDX] && $endDate[MONTH_IDX] < $startDate[MONTH_IDX]) || $endDate[YEAR_IDX] < $startDate[YEAR_IDX]) {
+        if (($endDate[YEAR_IDX] === $startDate[YEAR_IDX] && $endDate[MONTH_IDX] < $startDate[MONTH_IDX]) || $endDate[YEAR_IDX] < $startDate[YEAR_IDX]) {
             throw new \Exception("Date error: <end_date> must be posterior or equal to <start_date>!");
         }
     }
 
-    if (!isset($options[OPTION_OUTPUT])) { $output = DEFAULT_QUERY_OUTPUT; }
-    else { $output = $options[OPTION_OUTPUT]; }
+    $output = $options[OPTION_OUTPUT] ?? DEFAULT_QUERY_OUTPUT;
 
     if (!isset($options[OPTION_QUERYTYPE])) { throw new \Exception("Missing <query_type>"); }
     $queryType = strtoupper($options[OPTION_QUERYTYPE]);
-    if (!in_array($queryType, \FC\AWS\Athena::QUERY_TYPES)) {
+    if (!in_array($queryType, \FC\AWS\Athena::QUERY_TYPES, true)) {
         throw new \Exception(sprintf("Query type must be either %s or %s, %s given!", \FC\AWS\Athena::QUERY_TYPE_DDL, \FC\AWS\Athena::QUERY_TYPE_DML, $queryType));
     }
 
-    if (isset($options[OPTION_MAXQUERY])) { $maxquery = $options[OPTION_MAXQUERY]; }
+    if (isset($options[OPTION_MAXQUERY])) { $maxquery = (int)$options[OPTION_MAXQUERY]; }
     else { $maxquery = constant("\FC\AWS\Athena::AWS_DEFAULT_SIMULTANEOUS_" . $queryType . "_QUERIES"); }
 
-    if (!isset($options[OPTION_CATALOG])) { $catalog = DEFAULT_CATALOG; }
-    else { $catalog = $options[OPTION_CATALOG]; }
+    $catalog = $options[OPTION_CATALOG] ?? DEFAULT_CATALOG;
 
-    if (!isset($options[OPTION_WORKGROUP])) { $workgroup = DEFAULT_WORKGROUP; }
-    else { $workgroup = $options[OPTION_WORKGROUP]; }
+    $workgroup = $options[OPTION_WORKGROUP] ?? DEFAULT_WORKGROUP;
 
     // AWS Athena client configuration
     $awsConfig = getAwsConfig($options);
@@ -69,8 +66,8 @@ try {
     // init Athena object
     $athena = instantiateAthena(
         new \Aws\Athena\AthenaClient($awsConfig),
-        $queryType == \FC\AWS\Athena::QUERY_TYPE_DDL ? $maxquery : null,
-        $queryType == \FC\AWS\Athena::QUERY_TYPE_DML ? $maxquery : null,
+        $queryType === \FC\AWS\Athena::QUERY_TYPE_DDL ? $maxquery : null,
+        $queryType === \FC\AWS\Athena::QUERY_TYPE_DML ? $maxquery : null,
     );
 
     // output location on S3 for query results
@@ -82,8 +79,8 @@ try {
     $m = $startDate[MONTH_IDX];
     for ($y = $startDate[YEAR_IDX]; $y <= $endDate[YEAR_IDX]; $y++) {
         for (; $m <= 12; $m++) {
-            if ($y == $endDate[YEAR_IDX] && $m > $endDate[MONTH_IDX]) { break; }
-            
+            if ($y === $endDate[YEAR_IDX] && $m > $endDate[MONTH_IDX]) { break; }
+
             // build query
             $month = substr('00' . $m, -2);
             $query = sprintf(QUERY, $y, $month);
@@ -120,17 +117,17 @@ try {
         do {
             // get query id from the query array line
             $queryId = $athena->getQueryStaleId($query);
-            
+
             // get the current state of that query
             $executionTime = '';
             $failureReason = '';
             $state = $athena->getQueryCurrentState($queryId, $executionTime, $failureReason);
 
-            if (in_array($state, \FC\AWS\Athena::QUERY_STOP_STATES)) {
+            if (in_array($state, \FC\AWS\Athena::QUERY_STOP_STATES, true)) {
                 $loop = false;
-                print $queryId . "\t" . $execDetails[$queryId] . "\t" . $state . ($executionTime != '' ? "\t" . $executionTime : '') . ($state == \FC\AWS\Athena::QUERY_STATE_FAILED ? "\t" . $failureReason : '') . PHP_EOL;
+                print $queryId . "\t" . $execDetails[$queryId] . "\t" . $state . ($executionTime !== '' ? "\t" . $executionTime : '') . ($state === \FC\AWS\Athena::QUERY_STATE_FAILED ? "\t" . $failureReason : '') . PHP_EOL;
 
-                if ($state != \FC\AWS\Athena::QUERY_STATE_SUCCEEDED) {
+                if ($state !== \FC\AWS\Athena::QUERY_STATE_SUCCEEDED) {
                     $exit = 1;
                 }
             }

@@ -27,7 +27,7 @@ try {
     $executionTime = '';
     $failureReason = '';
     $state = $athena->getQueryCurrentState($id, $executionTime, $failureReason);
-    print $id . "\t" . $state . ($executionTime != '' ? "\t" . $executionTime : '') . ($state == \FC\AWS\Athena::QUERY_STATE_FAILED ? "\t" . $failureReason : '') . PHP_EOL;
+    print $id . "\t" . $state . ($executionTime !== '' ? "\t" . $executionTime : '') . ($state === \FC\AWS\Athena::QUERY_STATE_FAILED ? "\t" . $failureReason : '') . PHP_EOL;
 
     exit(0);
 

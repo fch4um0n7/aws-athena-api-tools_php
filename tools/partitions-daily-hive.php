@@ -9,7 +9,7 @@ namespace FC\AWS;
 require __DIR__ . "/imports/common.php";
 require __DIR__ . "/usage/partitions-daily-hive.usage.php";
 
-// type of query/ies executed 
+// type of query/ies executed
 const QUERY_TYPE = \FC\AWS\Athena::QUERY_TYPE_DDL;
 
 try {
@@ -17,14 +17,11 @@ try {
     if (!isset($options[OPTION_TABLE])) { throw new \Exception("Missing <table_name>!"); }
     $table = $options[OPTION_TABLE];
 
-    if (!isset($options[OPTION_OUTPUT])) { $output = DEFAULT_QUERY_OUTPUT; }
-    else { $output = $options[OPTION_OUTPUT]; }
+    $output = $options[OPTION_OUTPUT] ?? DEFAULT_QUERY_OUTPUT;
 
-    if (!isset($options[OPTION_CATALOG])) { $catalog = DEFAULT_CATALOG; }
-    else { $catalog = $options[OPTION_CATALOG]; }
+    $catalog = $options[OPTION_CATALOG] ?? DEFAULT_CATALOG;
 
-    if (!isset($options[OPTION_WORKGROUP])) { $workgroup = DEFAULT_WORKGROUP; }
-    else { $workgroup = $options[OPTION_WORKGROUP]; }
+    $workgroup = $options[OPTION_WORKGROUP] ?? DEFAULT_WORKGROUP;
 
     // AWS Athena client configuration
     $awsConfig = getAwsConfig($options);
@@ -48,15 +45,15 @@ try {
     $loop = true;
     do {
         // get the current state of that query
-        $executionTime = ''; 
+        $executionTime = '';
         $failureReason = '';
         $state = $athena->getQueryCurrentState($execId, $executionTime, $failureReason);
 
-        if (in_array($state, \FC\AWS\Athena::QUERY_STOP_STATES)) {
+        if (in_array($state, \FC\AWS\Athena::QUERY_STOP_STATES, true)) {
             $loop = false;
             print "Query result:\n";
-            print $execId . "\t" . $state . ($executionTime != '' ? "\t" . $executionTime : '') . ($state == \FC\AWS\Athena::QUERY_STATE_FAILED ? "\t" . $failureReason : '') . PHP_EOL;
-            if ($state != \FC\AWS\Athena::QUERY_STATE_SUCCEEDED) { $exit = 1; }
+            print $execId . "\t" . $state . ($executionTime !== '' ? "\t" . $executionTime : '') . ($state === \FC\AWS\Athena::QUERY_STATE_FAILED ? "\t" . $failureReason : '') . PHP_EOL;
+            if ($state !== \FC\AWS\Athena::QUERY_STATE_SUCCEEDED) { $exit = 1; }
         }
     } while ($loop);
 

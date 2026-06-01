@@ -13,6 +13,8 @@ const CREATE = "CREATE";
 const DELETE = "DELETE";
 
 try {
+    $query = '';
+
     // init configuration parameters
     if (isset($options[OPTION_CREATE])) {
         $sqlAction = CREATE;
@@ -20,10 +22,10 @@ try {
         if (!isset($options[OPTION_SCRIPT])) {
             stream_set_blocking(STDIN, false);
             $query = stream_get_contents(STDIN);
-            if ($query == '') { throw new \Exception("No query found!"); }
+            if ($query === '') { throw new \Exception("No query found!"); }
         } else {
             $script = $options[OPTION_SCRIPT];
-            if (!is_readable($script)) { throw new \Exception(sprintf("Script file not found at %!", $script)); }
+            if (!is_readable($script)) { throw new \Exception(sprintf("Script file not found at %s!", $script)); }
             $query = file_get_contents($script);
         }
 
@@ -57,15 +59,15 @@ try {
     $athena = instantiateAthena(new \Aws\Athena\AthenaClient($awsConfig));
 
     // create or delete named query
-    if ($sqlAction == CREATE) {
+    if ($sqlAction === CREATE) {
         if (!isset($options[OPTION_SILENT])) { echo "Creating named query:" . PHP_EOL; }
         $queryId = $athena->createNamedQuery($query, $database, $name, $description);
-        
+
         if (isset($options[OPTION_SILENT])) { print $queryId; }
         else { print $queryId . PHP_EOL; }
 
         if (!isset($options[OPTION_SILENT])) { print "Created successfully" . PHP_EOL; }
-    } elseif ($sqlAction == DELETE) {
+    } elseif ($sqlAction === DELETE) {
         echo "Deleting named query:" . PHP_EOL;
         print $id . PHP_EOL;
         $athena->deleteNamedQuery($id);

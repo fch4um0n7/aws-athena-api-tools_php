@@ -52,7 +52,7 @@ Example:
         -r us-east-1
 EOS, INCLUDED_FILE)));
 
-$shortOpts = 'q:o:g:k:p:v:r:swh';
+$shortOpts = 'q:o:g:k:p:v:r:swf:h';
 $longOpts = [
     'script:',
     'output:',
@@ -63,18 +63,19 @@ $longOpts = [
     'region:',
     'display',
     'silent',
+    'env-file:',
     'help'
 ];
 
 // set options
 $options = setOptions($shortOpts, $longOpts, USAGE);
 
-define('OPTION_SCRIPT', isset($options['q']) ? 'q' : 'script');
-define('OPTION_OUTPUT', isset($options['o']) ? 'o' : 'output');
-define('OPTION_WORKGROUP', isset($options['g']) ? 'g' : 'workgroup');
-define('OPTION_CATALOG', isset($options['k']) ? 'k' : 'catalog');
-define('OPTION_DISPLAY', isset($options['w']) ? 'w' : 'display');
-define('OPTION_SILENT', isset($options['s']) ? 's' : 'silent');
+define('OPTION_SCRIPT', array_key_exists('q', $options) ? 'q' : 'script');
+define('OPTION_OUTPUT', array_key_exists('o', $options) ? 'o' : 'output');
+define('OPTION_WORKGROUP', array_key_exists('g', $options) ? 'g' : 'workgroup');
+define('OPTION_CATALOG', array_key_exists('k', $options) ? 'k' : 'catalog');
+define('OPTION_DISPLAY', array_key_exists('w', $options) ? 'w' : 'display');
+define('OPTION_SILENT', array_key_exists('s', $options) ? 's' : 'silent');
 
 // Initialize AWS configuration options
 initAwsConfigOptions($options);

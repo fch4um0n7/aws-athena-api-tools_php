@@ -1,6 +1,7 @@
 {
-    "name": "francoischaumont/aws-athena-api-tools",
-    "description": "Toolkit for AWS Athena using AWS SDK for PHP v3",
+    "name": "fch4um0n7/aws-athena-api-tools_php",
+    "description": "Toolkit for AWS Athena using AWS SDK for PHP",
+    "license": "MIT",
     "authors": [
         {
             "name": "Francois Chaumont",
@@ -8,7 +9,7 @@
         }
     ],
     "require": {
-        "php": "^7.4",
+        "php": "^8.5",
         "aws/aws-sdk-php": "^3.175",
         "vlucas/phpdotenv": "^5.3"
     },

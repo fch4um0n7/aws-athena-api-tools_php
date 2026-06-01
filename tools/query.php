@@ -17,10 +17,10 @@ try {
     if (!isset($options[OPTION_SCRIPT])) {
         stream_set_blocking(STDIN, false);
         $query = stream_get_contents(STDIN);
-        if ($query == '') { throw new \Exception("No query found!"); }
+        if ($query === '') { throw new \Exception("No query found!"); }
     } else {
         $script = $options[OPTION_SCRIPT];
-        if (!is_readable($script)) { throw new \Exception(sprintf("Script file not found at %!", $script)); }
+        if (!is_readable($script)) { throw new \Exception(sprintf("Script file not found at %s!", $script)); }
         $query = file_get_contents($script);
     }
 
@@ -29,14 +29,11 @@ try {
         exit(0);
     }
 
-    if (!isset($options[OPTION_OUTPUT])) { $output = DEFAULT_QUERY_OUTPUT; }
-    else { $output = $options[OPTION_OUTPUT]; }
+    $output = $options[OPTION_OUTPUT] ?? DEFAULT_QUERY_OUTPUT;
 
-    if (!isset($options[OPTION_CATALOG])) { $catalog = DEFAULT_CATALOG; }
-    else { $catalog = $options[OPTION_CATALOG]; }
+    $catalog = $options[OPTION_CATALOG] ?? DEFAULT_CATALOG;
 
-    if (!isset($options[OPTION_WORKGROUP])) { $workgroup = DEFAULT_WORKGROUP; }
-    else { $workgroup = $options[OPTION_WORKGROUP]; }
+    $workgroup = $options[OPTION_WORKGROUP] ?? DEFAULT_WORKGROUP;
 
     // AWS Athena client configuration
     $awsConfig = getAwsConfig($options);
@@ -58,19 +55,19 @@ try {
     $loop = true;
     do {
         // get the current state of that query
-        $executionTime = ''; 
+        $executionTime = '';
         $failureReason = '';
         $state = $athena->getQueryCurrentState($execId, $executionTime, $failureReason);
 
-        if (in_array($state, \FC\AWS\Athena::QUERY_STOP_STATES)) {
+        if (in_array($state, \FC\AWS\Athena::QUERY_STOP_STATES, true)) {
             $loop = false;
 
             if (!isset($options[OPTION_SILENT])) {
                 print "Query result:" . PHP_EOL;
-                print $execId . "\t" . $state . ($executionTime != '' ? "\t" . $executionTime : '') . ($state == \FC\AWS\Athena::QUERY_STATE_FAILED ? "\t" . $failureReason : '') . PHP_EOL;
+                print $execId . "\t" . $state . ($executionTime !== '' ? "\t" . $executionTime : '') . ($state === \FC\AWS\Athena::QUERY_STATE_FAILED ? "\t" . $failureReason : '') . PHP_EOL;
             }
 
-            if ($state != \FC\AWS\Athena::QUERY_STATE_SUCCEEDED) {
+            if ($state !== \FC\AWS\Athena::QUERY_STATE_SUCCEEDED) {
                 if (isset($options[OPTION_SILENT])) {
                     print '';
                 }

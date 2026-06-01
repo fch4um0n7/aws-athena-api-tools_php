@@ -26,7 +26,7 @@
 - list & detail database tables
 
 ## Requirements
-- [PHP](https://www.php.net/releases/7_4_0.php) ^7.4
+- [PHP](https://www.php.net/) ^8.5
 - [aws/aws-sdk-php](https://github.com/aws/aws-sdk-php) ^3.175
 - [vlucas/phpdotenv](https://github.com/vlucas/phpdotenv) ^5.3
 - [Composer](https://getcomposer.org)
@@ -43,7 +43,7 @@ composer install
 
 ## Configuration
 Modify the following variables inside the file [.env](.env) for default values to use when related options are omitted
-- `PROFILE`: AWS profile from ~/.AWS/credentials
+- `PROFILE`: AWS profile from ~/.aws/credentials
 - `VERSION`: AWS webservice version
 - `REGION`: AWS region to connect to
 - `CATALOG`: Athena data source catalog
@@ -62,15 +62,15 @@ Modify the following variables inside the file [.env](.env) for default values t
 - `AWS_DEFAULT_SIMULTANEOUS_DDL_QUERIES`⁶: max simultaneous DDL queries
 - `AWS_DEFAULT_SIMULTANEOUS_DML_QUERIES`⁷: max simultaneous DML queries
 
-¹BatchGetNamedQuery, ListNamedQueries, ListQueryExecutions      
-²CreateNamedQuery, DeleteNamedQuery, GetNamedQuery      
-³BatchGetQueryExecution         
-⁴StartQueryExecution, StopQueryExecution        
-⁵GetQueryExecution, GetQueryResults - `a value higher than 2 will exceed the max rate limit`       
+¹BatchGetNamedQuery, ListNamedQueries, ListQueryExecutions
+²CreateNamedQuery, DeleteNamedQuery, GetNamedQuery
+³BatchGetQueryExecution
+⁴StartQueryExecution, StopQueryExecution
+⁵GetQueryExecution, GetQueryResults - `a value higher than 2 will exceed the max rate limit`
 ⁶create table, create table add partition
 ⁷select, create table as (CTAS)
 
-⁰max burst capacity not yet implemented         
+⁰max burst capacity not yet implemented
 
 ## Important
 - Make sure to double % inside query files for other than parameters passed to the query or they will be replaced by sprintf
@@ -93,7 +93,7 @@ AWS documentation:
 - AWS SDK [API documentation for Athena](https://docs.aws.amazon.com/aws-sdk-php/v3/api/namespace-Aws.Athena.html)
 - AWS SDK for PHP v3 [Getting Started](https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/getting-started_index.html)
 - AWS Athena [Service Limits](https://docs.aws.amazon.com/athena/latest/ug/service-limits.html)
-- List of [AWS regions](http://docs.aws.amazon.com/general/latest/gr/rande.html) 
+- List of [AWS regions](http://docs.aws.amazon.com/general/latest/gr/rande.html)
 - Data [Partitioning](https://docs.aws.amazon.com/athena/latest/ug/partitions.html)
 
 ## TODO

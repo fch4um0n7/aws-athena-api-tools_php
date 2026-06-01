@@ -65,7 +65,7 @@ Example:
         -r us-east-1
 EOS, INCLUDED_FILE)));
 
-$shortOpts = 'q:b:e:u:o:x:g:k:p:v:r:wh';
+$shortOpts = 'q:b:e:u:o:x:g:k:p:v:r:wf:h';
 $longOpts = [
     'script:',
     'begin:',
@@ -79,21 +79,22 @@ $longOpts = [
     'version:',
     'region:',
     'display',
+    'env-file:',
     'help'
 ];
 
 // set options
 $options = setOptions($shortOpts, $longOpts, USAGE);
 
-define('OPTION_SCRIPT', isset($options['q']) ? 'q' : 'script');
-define('OPTION_BEGIN', isset($options['b']) ? 'b' : 'begin');
-define('OPTION_END', isset($options['e']) ? 'e' : 'end');
-define('OPTION_MAXQUERY', isset($options['u']) ? 'u' : 'maxquery');
-define('OPTION_OUTPUT', isset($options['o']) ? 'o' : 'output');
-define('OPTION_QUERYTYPE', isset($options['x']) ? 'x' : 'querytype');
-define('OPTION_WORKGROUP', isset($options['g']) ? 'g' : 'workgroup');
-define('OPTION_CATALOG', isset($options['k']) ? 'k' : 'catalog');
-define('OPTION_DISPLAY', isset($options['w']) ? 'w' : 'display');
+define('OPTION_SCRIPT', array_key_exists('q', $options) ? 'q' : 'script');
+define('OPTION_BEGIN', array_key_exists('b', $options) ? 'b' : 'begin');
+define('OPTION_END', array_key_exists('e', $options) ? 'e' : 'end');
+define('OPTION_MAXQUERY', array_key_exists('u', $options) ? 'u' : 'maxquery');
+define('OPTION_OUTPUT', array_key_exists('o', $options) ? 'o' : 'output');
+define('OPTION_QUERYTYPE', array_key_exists('x', $options) ? 'x' : 'querytype');
+define('OPTION_WORKGROUP', array_key_exists('g', $options) ? 'g' : 'workgroup');
+define('OPTION_CATALOG', array_key_exists('k', $options) ? 'k' : 'catalog');
+define('OPTION_DISPLAY', array_key_exists('w', $options) ? 'w' : 'display');
 
 // Initialize AWS configuration options
 initAwsConfigOptions($options);

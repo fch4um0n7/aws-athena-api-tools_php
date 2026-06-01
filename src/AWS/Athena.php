@@ -3,7 +3,7 @@
 namespace FC\AWS;
 
 /**
- * Execute queries on AWS Athena using AWS SDK for PHP v3 
+ * Execute queries on AWS Athena using AWS SDK for PHP v3
  */
 class Athena
 {
@@ -16,8 +16,8 @@ class Athena
 
     // stopped states (not running)
     const QUERY_STOP_STATES = [
-        self::QUERY_STATE_SUCCEEDED, 
-        self::QUERY_STATE_FAILED, 
+        self::QUERY_STATE_SUCCEEDED,
+        self::QUERY_STATE_FAILED,
         self::QUERY_STATE_CANCELLED
     ];
 
@@ -83,9 +83,9 @@ class Athena
     /** @var int $dmlQueriesSimultaneous max simultaneous DML queries */
     private int $dmlQueriesSimultaneous;
 
-    private \Aws\Athena\AthenaClient $athenaClient;
+    private readonly \Aws\Athena\AthenaClient $athenaClient;
     private array $queries = [];
-    
+
     /**
      * Reset the query details (IDs and states)
      *
@@ -94,7 +94,7 @@ class Athena
      */
     public function resetQueries(bool $force = false): bool
     {
-        if (!$force && array_search(self::QUERY_STATE_RUNNING, array_column($this->queries, 'state')) !== false) {
+        if (!$force && in_array(self::QUERY_STATE_RUNNING, array_column($this->queries, 'state'), true)) {
             return false;
         }
 
@@ -108,13 +108,13 @@ class Athena
      * @return array
      */
     public function getQueries(): array { return $this->queries; }
-    
+
     /**
      * Get the total of query executions
      *
      * @return integer
      */
-    public function getTotalQueries(): int { return sizeof($this->queries); }
+    public function getTotalQueries(): int { return count($this->queries); }
 
     /**
      * Get a stale query state (not current, see getQueryCurrentState) from a query detail array (identical to query['state'])
@@ -157,7 +157,7 @@ class Athena
      * @param integer $dmlQueriesSimultaneous max simultaneous DML queries -> select, create table as (CTAS)
      */
     public function __construct(
-        \Aws\Athena\AthenaClient $athenaClient, 
+        \Aws\Athena\AthenaClient $athenaClient,
         int $level1QueriesMaxCalls = self::AWS_DEFAULT_MAX_CALLS_PER_SECOND_LEVEL1QUERIES,
         int $level2QueriesMaxCalls = self::AWS_DEFAULT_MAX_CALLS_PER_SECOND_LEVEL2QUERIES,
         int $level3QueriesMaxCalls = self::AWS_DEFAULT_MAX_CALLS_PER_SECOND_LEVEL3QUERIES,
@@ -171,21 +171,20 @@ class Athena
         int $ddlQueriesSimultaneous = self::AWS_DEFAULT_SIMULTANEOUS_DDL_QUERIES,
         int $dmlQueriesSimultaneous = self::AWS_DEFAULT_SIMULTANEOUS_DML_QUERIES)
     {
-        for ($i = 1; $i <= 5; $i++) {
-            $qmv = "level".$i."QueriesMaxCalls";
-            $qbc = "level".$i."QueriesBurstCapacity";
+        $this->level1QueriesMaxCalls = max(1, $level1QueriesMaxCalls);
+        $this->level2QueriesMaxCalls = max(1, $level2QueriesMaxCalls);
+        $this->level3QueriesMaxCalls = max(1, $level3QueriesMaxCalls);
+        $this->level4QueriesMaxCalls = max(1, $level4QueriesMaxCalls);
+        $this->level5QueriesMaxCalls = max(1, $level5QueriesMaxCalls);
 
-            if (${$qmv} < 1) { ${$qmv} = constant('self::AWS_DEFAULT_MAX_CALLS_PER_SECOND_LEVEL'.$i.'QUERIES'); }
-            else { $this->{$qmv} = ${$qmv}; }
+        $this->level1QueriesBurstCapacity = max(1, $level1QueriesBurstCapacity);
+        $this->level2QueriesBurstCapacity = max(1, $level2QueriesBurstCapacity);
+        $this->level3QueriesBurstCapacity = max(1, $level3QueriesBurstCapacity);
+        $this->level4QueriesBurstCapacity = max(1, $level4QueriesBurstCapacity);
+        $this->level5QueriesBurstCapacity = max(1, $level5QueriesBurstCapacity);
 
-            if (${$qbc} < 1) { ${$qmv} = constant('self::AWS_DEFAULT_MAX_BURST_CAPACITY_LEVEL'.$i.'QUERIES'); }
-            else { $this->{$qbc} = ${$qbc}; }
-        }
-
-        if ($ddlQueriesSimultaneous < 1) { $this->ddlQueriesSimultaneous = self::AWS_DEFAULT_SIMULTANEOUS_DDL_QUERIES; }
-        else { $this->ddlQueriesSimultaneous = $ddlQueriesSimultaneous; }
-        if ($dmlQueriesSimultaneous < 1) { $this->dmlQueriesSimultaneous = self::AWS_DEFAULT_SIMULTANEOUS_DML_QUERIES; }
-        else { $this->dmlQueriesSimultaneous = $dmlQueriesSimultaneous; }
+        $this->ddlQueriesSimultaneous = max(1, $ddlQueriesSimultaneous);
+        $this->dmlQueriesSimultaneous = max(1, $dmlQueriesSimultaneous);
 
         $this->athenaClient = $athenaClient;
     }
@@ -264,18 +263,18 @@ class Athena
      * Get the current state of a query
      *
      * @param string $queryId query ID
-     * @param string $executionTime readable execution time
-     * @param string $reason reason of failure
+     * @param string|null $executionTime readable execution time
+     * @param string|null $reason reason of failure
      * @return string query state (RUNNING, QUEUED, SUCCEEDED, FAILED or CANCELLED)
      */
-    public function getQueryCurrentState(string $queryId, string &$executionTime = null, string &$reason = null): string
+    public function getQueryCurrentState(string $queryId, ?string &$executionTime = null, ?string &$reason = null): string
     {
         // pause execution to stay under the limits
         usleep(intval(1000000 / $this->level5QueriesMaxCalls));
 
         $e = $this->athenaClient->getQueryExecution([ 'QueryExecutionId' => $queryId ]);
 
-        if ($e['QueryExecution']['Status']['State'] == self::QUERY_STATE_FAILED && isset($e['QueryExecution']['Status']['StateChangeReason'])) {
+        if ($e['QueryExecution']['Status']['State'] === self::QUERY_STATE_FAILED && isset($e['QueryExecution']['Status']['StateChangeReason'])) {
             $reason = $e['QueryExecution']['Status']['StateChangeReason'];
         }
 
@@ -295,19 +294,17 @@ class Athena
     public function isQueryLimitReached(string $queryType): bool
     {
         // queryType must be DDL or DML (see class constants)
-        if ($queryType == self::QUERY_TYPE_DDL) {
-            $limit = $this->ddlQueriesSimultaneous;
-        } elseif ($queryType == self::QUERY_TYPE_DML) {
-            $limit = $this->dmlQueriesSimultaneous;
-        } else {
-            throw new \Exception(sprintf("Query type must be either of these: %s or %s, %s given", self::QUERY_TYPE_DDL, self::QUERY_TYPE_DML, $queryType));
-        }
+        $limit = match ($queryType) {
+            self::QUERY_TYPE_DDL => $this->ddlQueriesSimultaneous,
+            self::QUERY_TYPE_DML => $this->dmlQueriesSimultaneous,
+            default => throw new \Exception(sprintf("Query type must be either of these: %s or %s, %s given", self::QUERY_TYPE_DDL, self::QUERY_TYPE_DML, $queryType)),
+        };
 
         $this->updateQueriesState();
 
         $running = 0;
         foreach (array_column($this->queries, 'state') as $state) {
-            if (!in_array($state, self::QUERY_STOP_STATES)) {
+            if (!in_array($state, self::QUERY_STOP_STATES, true)) {
                 $running++;
             }
         }
@@ -324,7 +321,7 @@ class Athena
         $this->updateQueriesState();
 
         foreach (array_column($this->queries, 'state') as $state) {
-            if (!in_array($state, self::QUERY_STOP_STATES)) {
+            if (!in_array($state, self::QUERY_STOP_STATES, true)) {
                 return true;
             }
         }
@@ -339,11 +336,12 @@ class Athena
      */
     private function updateQueriesState(): void
     {
-        for ($i = 0, $imax = sizeof($this->queries); $i < $imax; $i++) {
-            if (!in_array($this->queries[$i]['state'], self::QUERY_STOP_STATES)) {
-                $this->queries[$i]['state'] = $this->getQueryCurrentState($this->queries[$i]['execId']);
+        foreach ($this->queries as &$query) {
+            if (!in_array($query['state'], self::QUERY_STOP_STATES, true)) {
+                $query['state'] = $this->getQueryCurrentState($query['execId']);
             }
         }
+        unset($query);
     }
 
     /**
@@ -359,7 +357,8 @@ class Athena
         usleep(intval(1000000 / $this->level4QueriesMaxCalls));
 
         $this->athenaClient->stopQueryExecution([ 'QueryExecutionId' => $queryId ]);
-        if (($key = array_search($queryId, array_column($this->queries, 'execId'))) === true) {
+        $key = array_search($queryId, array_column($this->queries, 'execId'), true);
+        if ($key !== false) {
             $this->queries[$key]['state'] = self::QUERY_STATE_CANCELLED;
         }
     }
@@ -371,20 +370,21 @@ class Athena
      */
     public function StopAllQueries(): void
     {
-        for ($i = 0, $imax = sizeof($this->queries); $i < $imax; $i++) {
-            if (!in_array($this->queries[$i]['state'], self::QUERY_STOP_STATES)) {
+        foreach ($this->queries as &$query) {
+            if (!in_array($query['state'], self::QUERY_STOP_STATES, true)) {
                 // get current query state
-                $this->queries[$i]['state'] = $this->getQueryCurrentState($this->queries[$i]['execId']);
+                $query['state'] = $this->getQueryCurrentState($query['execId']);
 
-                if (!in_array($this->queries[$i]['state'], self::QUERY_STOP_STATES)) {
+                if (!in_array($query['state'], self::QUERY_STOP_STATES, true)) {
                     // pause execution to stay under the limits
                     usleep(intval(1000000 / $this->level4QueriesMaxCalls));
 
-                    $this->athenaClient->stopQueryExecution([ 'QueryExecutionId' => $this->queries[$i]['execId'] ]);
-                    $this->queries[$i]['state'] = self::QUERY_STATE_CANCELLED;
+                    $this->athenaClient->stopQueryExecution([ 'QueryExecutionId' => $query['execId'] ]);
+                    $query['state'] = self::QUERY_STATE_CANCELLED;
                 }
             }
         }
+        unset($query);
     }
 
     /**
@@ -430,7 +430,7 @@ class Athena
             'NamedQueryId' => $namedQueryId
         ]);
 
-        if (is_array($r) && sizeof((array)$r) != 0) {
+        if (is_array($r) && count((array)$r) !== 0) {
             throw new \Exception("Failed to delete named query: " . self::getErrorMessage($r));
         }
     }
@@ -466,7 +466,7 @@ class Athena
     {
         $namedQueriesList = [];
 
-        if ($nextPaginationToken != '') {
+        if ($nextPaginationToken !== '') {
             // pause execution to stay under the limits
             // usleep(intval(1000000 / $this->level1QueriesMaxCalls));
             sleep(10); // IMPROVE: forced 10 second wait between calls to avoid max rate exceeded error
@@ -484,11 +484,7 @@ class Athena
             $namedQueriesList = array_merge($namedQueriesList, $r['NamedQueryIds']);
         }
 
-        if (isset($r['NextToken']) && $r['NextToken'] != '') {
-            $nextPaginationToken = $r['NextToken'];
-        } else {
-            $nextPaginationToken = '';
-        }
+        $nextPaginationToken = $r['NextToken'] ?? '';
 
         return $namedQueriesList;
     }
@@ -497,7 +493,7 @@ class Athena
      * List all databases inside a source catalog
      *
      * @param string $catalogName name of the source catalog
-     * @return void
+        * @return array
      */
     public function listAllDatabases(string $catalogName): array
     {
@@ -505,7 +501,7 @@ class Athena
         $databaseList = [];
 
         do {
-            if ($nextPaginationToken != '') {
+            if ($nextPaginationToken !== '') {
                 $r = $this->athenaClient->listDatabases([
                     'CatalogName' => $catalogName,
                     'NextToken' => $nextPaginationToken
@@ -524,12 +520,8 @@ class Athena
                 }
             }
 
-            if (isset($r['NextToken']) && $r['NextToken'] != '') {
-                $nextPaginationToken = $r['NextToken'];
-            } else {
-                $nextPaginationToken = '';
-            }
-        } while ($nextPaginationToken != '');
+            $nextPaginationToken = $r['NextToken'] ?? '';
+        } while ($nextPaginationToken !== '');
 
         return $databaseList;
     }
@@ -569,7 +561,7 @@ class Athena
         $tablesDetails = [];
 
         do {
-            if ($nextPaginationToken != '') {
+            if ($nextPaginationToken !== '') {
                 $r = $this->athenaClient->listTableMetadata([
                     'CatalogName' => $catalogName,
                     'DatabaseName' => $database,
@@ -590,12 +582,8 @@ class Athena
                 $tablesDetails = array_merge($tablesDetails, $r['TableMetadataList']);
             }
 
-            if (isset($r['NextToken']) && $r['NextToken'] != '') {
-                $nextPaginationToken = $r['NextToken'];
-            } else {
-                $nextPaginationToken = '';
-            }
-        } while ($nextPaginationToken != '');
+            $nextPaginationToken = $r['NextToken'] ?? '';
+        } while ($nextPaginationToken !== '');
 
         return $tablesDetails;
     }
@@ -606,9 +594,9 @@ class Athena
      * @param string $database database name
      * @param string $table table name
      * @param string $catalogName name of the source catalog
-     * @return void
+        * @return array
      */
-    public function getTableDetails(string $database, string $table, string $catalogName)
+    public function getTableDetails(string $database, string $table, string $catalogName): array
     {
         $r = $this->athenaClient->getTableMetadata([
             'CatalogName' => $catalogName,
@@ -626,12 +614,16 @@ class Athena
     /**
      * Retrieve error message from results array
      *
-     * @param array $results array containing results from previous API call
+     * @param mixed $results array-like result containing details from previous API call
      * @return string error message
      */
-    private static function getErrorMessage(array $results): string
+    private static function getErrorMessage(mixed $results): string
     {
-        return isset($results['Message']) ? $results['Message'] : "no error detail";
+        if (is_array($results) || $results instanceof \ArrayAccess) {
+            return $results['Message'] ?? 'no error detail';
+        }
+
+        return 'no error detail';
     }
 }
 

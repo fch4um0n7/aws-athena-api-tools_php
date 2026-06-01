@@ -69,7 +69,7 @@ Example:
         -r us-east-1
 EOS, INCLUDED_FILE)));
 
-$shortOpts = 'cdi:q:n:j:z:p:v:r:swh';
+$shortOpts = 'cdi:q:n:j:z:p:v:r:swf:h';
 $longOpts = [
     'create',
     'delete',
@@ -83,21 +83,22 @@ $longOpts = [
     'region:',
     'silent',
     'display',
+    'env-file:',
     'help'
 ];
 
 // set options
 $options = setOptions($shortOpts, $longOpts, USAGE);
 
-define('OPTION_CREATE', isset($options['c']) ? 'c' : 'create');
-define('OPTION_SCRIPT', isset($options['q']) ? 'q' : 'script');
-define('OPTION_DATABASE', isset($options['n']) ? 'n' : 'database');
-define('OPTION_NAME', isset($options['j']) ? 'j' : 'name');
-define('OPTION_DESCRIPTION', isset($options['z']) ? 'z' : 'description');
-define('OPTION_DELETE', isset($options['d']) ? 'd' : 'delete');
-define('OPTION_ID', isset($options['i']) ? 'i' : 'id');
-define('OPTION_DISPLAY', isset($options['w']) ? 'w' : 'display');
-define('OPTION_SILENT', isset($options['s']) ? 's' : 'silent');
+define('OPTION_CREATE', array_key_exists('c', $options) ? 'c' : 'create');
+define('OPTION_SCRIPT', array_key_exists('q', $options) ? 'q' : 'script');
+define('OPTION_DATABASE', array_key_exists('n', $options) ? 'n' : 'database');
+define('OPTION_NAME', array_key_exists('j', $options) ? 'j' : 'name');
+define('OPTION_DESCRIPTION', array_key_exists('z', $options) ? 'z' : 'description');
+define('OPTION_DELETE', array_key_exists('d', $options) ? 'd' : 'delete');
+define('OPTION_ID', array_key_exists('i', $options) ? 'i' : 'id');
+define('OPTION_DISPLAY', array_key_exists('w', $options) ? 'w' : 'display');
+define('OPTION_SILENT', array_key_exists('s', $options) ? 's' : 'silent');
 
 // Initialize AWS configuration options
 initAwsConfigOptions($options);

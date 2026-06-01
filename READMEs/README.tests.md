@@ -1,10 +1,10 @@
 ## Tests
 This [test](../tests/test.sh) script allows to tests every tools of this library.
 
-Make sure to read **Requirements**, **Installation** and **Configuration** first.       
+Make sure to read **Requirements**, **Installation** and **Configuration** first.
 **For safety, a confirmation to delete data on s3 and drop database/tables is required at start.**
 
-Tested on Ubuntu 20.04 running PHP7.4.
+Tested on Linux with PHP 8.5+.
 
 It requires the database `sampledb` and performs the following:
 1. list database `sampledb`
@@ -38,6 +38,6 @@ Example:
     -m 01
 ```
 
-Output:     
+Output:
 See expected [output](../tests/output.txt) for more details.
 

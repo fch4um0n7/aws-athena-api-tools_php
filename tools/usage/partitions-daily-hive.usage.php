@@ -63,7 +63,7 @@ Example:
         -r us-east-1
 EOS, INCLUDED_FILE)));
 
-$shortOpts = 't:o:g:k:p:v:r:h';
+$shortOpts = 't:o:g:k:p:v:r:f:h';
 $longOpts = [
     'table:',
     'output:',
@@ -72,16 +72,17 @@ $longOpts = [
     'profile:',
     'version:',
     'region:',
+    'env-file:',
     'help'
 ];
 
 // set options
 $options = setOptions($shortOpts, $longOpts, USAGE);
 
-define('OPTION_TABLE', isset($options['t']) ? 't' : 'table');
-define('OPTION_OUTPUT', isset($options['o']) ? 'o' : 'output');
-define('OPTION_WORKGROUP', isset($options['g']) ? 'g' : 'workgroup');
-define('OPTION_CATALOG', isset($options['k']) ? 'k' : 'catalog');
+define('OPTION_TABLE', array_key_exists('t', $options) ? 't' : 'table');
+define('OPTION_OUTPUT', array_key_exists('o', $options) ? 'o' : 'output');
+define('OPTION_WORKGROUP', array_key_exists('g', $options) ? 'g' : 'workgroup');
+define('OPTION_CATALOG', array_key_exists('k', $options) ? 'k' : 'catalog');
 
 // Initialize AWS configuration options
 initAwsConfigOptions($options);
